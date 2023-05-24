@@ -11,7 +11,7 @@ This script use data and API provided by <a href="https://www.abuseipdb.com" tar
 git clone https://github.com/monsoft/abichecker.git
 ```
 * Instal curl and jq application on your system
-<br>
+
 Debian/Ubuntu:
 ```
 sudo apt install -y curl jq

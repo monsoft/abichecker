@@ -12,9 +12,6 @@ TOKEN=XXX
 # Api url
 API_URL="api.abuseipdb.com/api/v2/check"
 
-# AbuseIPDB Score in %
-ABUSESCORE=50
-
 # SMTP response message
 SMTP_DENY_MESSAGE="Bad host reputation."
 

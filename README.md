@@ -1,6 +1,6 @@
 # abichecker
 
-This is another very simple plugin for Postfix SMTP server to block access from IPs which have bad reputation. We are living in very denger times and even small and simple script like this one, can make you and your server more secure.
+This is another very simple plugin for Postfix SMTP server to block access from IPs which have bad reputation. We are living in very danger times and even small and simple script like this one, can make you and your server more secure.
 
 This script use data and API provided by <a href="https://www.abuseipdb.com" target="_blank">AbuseIPDB</a> project. API is free up to 3000 checks per day so if your SMTP server is quite busy, you will have to look for paid access.
 
@@ -20,7 +20,7 @@ Red Hat/CentOs/Rocky Linux/AlmaLinux:
 ```
 sudo dnf install -y curl jq
 ```
-* Create account on <a href="https://www.abuseipdb.com" target="_blank">AbuseIPDB</a> project and create API Key by going to `AbuseIPDB->User Account->API` and clieck `Create Key`.
+* Create account on <a href="https://www.abuseipdb.com" target="_blank">AbuseIPDB</a> project and create API Key by going to `AbuseIPDB->User Account->API` and click `Create Key`.
 * Copy API Key and modify variable `TOKEN` in `abichecker.sh` script.
 * Add below lines to the end of Postfix master.cf file:
 ```

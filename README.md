@@ -10,6 +10,10 @@ This script use data and API provided by <a href="https://www.abuseipdb.com" tar
 ```
 git clone https://github.com/monsoft/abichecker.git
 ```
+* Setup executable bit on `abichecker.sh` script:
+```
+chmod 755 abichecker.sh
+```
 * Instal curl and jq application on your system
 
 Debian/Ubuntu:

@@ -60,7 +60,11 @@ outbound.protection.outlook.com
 
 Sometimes you may find yourself in situation that require to see what Postfix is doing on lower level (happen to me multiple times during writing check policy service scripts). To do this, edit master.cf file and add option `-v` to smtp line so it will looks like this:
 ```
-smtp      unix  -       -       n       -       -       smtp -v
+# ==========================================================================
+# service type  private unpriv  chroot  wakeup  maxproc command + args
+#               (yes)   (yes)   (no)    (never) (100)
+# ==========================================================================
+smtp      inet  n       -       y       -       -       smtpd -v
 ```
 After saving this file, restart postfix service. Try to send few emails to your mail server and check your Postfix log file. It will be much bigger than usual and it will be growing fast.<br>
 When you finish your investigation, remove added `-v` from smtp line.

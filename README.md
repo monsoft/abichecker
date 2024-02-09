@@ -12,6 +12,7 @@ git clone https://github.com/monsoft/abichecker.git
 ```
 * Setup executable bit on `abichecker.sh` script:
 ```
+cd /opt/abichecker
 chmod 755 abichecker.sh
 ```
 * Instal curl and jq application on your system
@@ -46,9 +47,11 @@ sudo adduser --quiet --system --group --no-create-home --home /nonexistent abich
 
 After some times you can check logs for lines like this one:
 ```
+Feb  9 11:12:47 mail1 abichecker[6761]: Email from host unknown[x.x.x.x] denied. Abuse Score 71%.
+
 NOQUEUE: reject: RCPT from unknown[x.x.x.x]: 521 5.7.1 <unknown[x.x.x.x]>: Client host rejected: Bad host reputation.; from=<spameri@tiscali.it> to=<spameri@tiscali.it> proto=ESMTP helo=<xxxxxxxx>
 ```
-This mean that check found IP which already exist in AbuseIPDB database and its reputation is equal or higher than 50% (this can be changed in script by tweaking variable `ABUSE_SCORE`) then reject connetion from that IP. 
+This mean that check found IP which already exist in AbuseIPDB database and its reputation is equal or higher than 70% (this can be changed in script by tweaking variable `ABUSE_SCORE`) then reject connetion from that IP. 
 
 Sometimes IPs of legitimaed services like MS Outlook are reported to AbuseIPDB by automatic reports. To allow reciving emails from these domains, you can whitelist them by adding them to file `hostname domain whitelist.txt` located in `/opt/abichecker/`. One domain/subdomain per line:
 ```

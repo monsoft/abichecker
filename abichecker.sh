@@ -61,26 +61,28 @@ while read attr; do
 	eval $attr
 done
 
-if [ -z $client_address ]; then
+if [ -z "$client_address" ]; then
 	echo "No variables passed by Postfix" | logger -p mail.info -t ${SCRIPT_NAME}
 	exit 1
 fi
 
 # Check if client whitelisted by domain
-if [ ! -z ${client_name} ]; then
-	if [ -f ${HOSTNAME_WHITELIST_DOMAINS} ]; then
+if [ ! -z "${client_name}" ]; then
+	if [ -f "${HOSTNAME_WHITELIST_DOMAINS}" ]; then
 		while IFS= read -r domain; do
-			if [[ ${client_name} =~ ${domain} ]]; then
-				echo "Host ${client_name} whitelisted by domain." | logger -p mail.info -t ${SCRIPT_NAME}
-				email_allow
+			if [ -n "$domain" ]; then
+				if [[ "${client_name}" =~ "${domain}" ]]; then
+					echo "Host ${client_name} whitelisted by domain." | logger -p mail.info -t ${SCRIPT_NAME}
+					email_allow
+				fi
 			fi
-		done < ${HOSTNAME_WHITELIST_DOMAINS}
+		done < "${HOSTNAME_WHITELIST_DOMAINS}"
 	fi
 fi
 
 REPORT_JSON=$(curl -s -G https://${API_URL} --data-urlencode "ipAddress=$client_address" -H "Key: ${TOKEN}" -H "Accept: application/json")
 
-if [[ ! ${REPORT_JSON} =~ "ipAddress" ]]; then
+if [[ ! "${REPORT_JSON}" =~ "ipAddress" ]]; then
 	echo "Unable to fetch data from abuseipdb.com API. Please check connection." | logger -p mail.info -t ${SCRIPT_NAME}
 	exit 1
 fi
@@ -88,7 +90,7 @@ fi
 # Parsing JSON into variables
 ABUSE_CONFIDENCE_SCORE=$(echo "${REPORT_JSON}"|jq -r .data.abuseConfidenceScore)
 
-if [ ${ABUSE_CONFIDENCE_SCORE} -gt ${ABUSE_SCORE} ]; then
+if [ "${ABUSE_CONFIDENCE_SCORE}" -gt "${ABUSE_SCORE}" ]; then
 	# We are denying access
 	echo "Email from host ${client_name}[$client_address] denied. Abuse Score ${ABUSE_CONFIDENCE_SCORE}%." | logger -p mail.info -t ${SCRIPT_NAME}
 	email_deny

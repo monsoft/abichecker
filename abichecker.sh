@@ -7,7 +7,7 @@
 #
 
 # Logging to mail log
-readonly SCRIPT_NAME="$(basename $0|tr -d '.sh')[$$]"
+readonly SCRIPT_NAME="$(basename $0|sed 's/\.sh//g')[$$]"
 
 # abuseipdb.com API token
 TOKEN=XXX
@@ -90,10 +90,10 @@ ABUSE_CONFIDENCE_SCORE=$(echo "${REPORT_JSON}"|jq -r .data.abuseConfidenceScore)
 
 if [ ${ABUSE_CONFIDENCE_SCORE} -gt ${ABUSE_SCORE} ]; then
 	# We are denying access
-	echo "Email from host ${client_name}[$client_address] denied. Abuse Score ${ABUSE_SCORE}%." | logger -p mail.info -t ${SCRIPT_NAME}
+	echo "Email from host ${client_name}[$client_address] denied. Abuse Score ${ABUSE_CONFIDENCE_SCORE}%." | logger -p mail.info -t ${SCRIPT_NAME}
 	email_deny
 else
 	# We are allowing access
-	echo "Email from host ${client_name}[$client_address] allowed. Abuse Score ${ABUSE_SCORE}%." | logger -p mail.info -t ${SCRIPT_NAME}
+	echo "Email from host ${client_name}[$client_address] allowed. Abuse Score ${ABUSE_CONFIDENCE_SCORE}%." | logger -p mail.info -t ${SCRIPT_NAME}
 	email_allow
 fi

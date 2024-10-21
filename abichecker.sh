@@ -32,7 +32,7 @@ HOSTNAME_WHITELIST_DOMAINS="${CONF_DIR}/abichecker/hostname_domain_whitelist.txt
 check_commands () {
 	if ! command -v $1 &> /dev/null; then
 		echo "$1 could not be found. Please install $1" | logger -p mail.info -t ${SCRIPT_NAME}
-		exit 1
+		email_allow
 	fi
 }
 
@@ -84,7 +84,7 @@ REPORT_JSON=$(curl -s -G https://${API_URL} --data-urlencode "ipAddress=$client_
 
 if [[ ! "${REPORT_JSON}" =~ "ipAddress" ]]; then
 	echo "Unable to fetch data from abuseipdb.com API. Please check connection." | logger -p mail.info -t ${SCRIPT_NAME}
-	exit 1
+	email_allow
 fi
 
 # Parsing JSON into variables

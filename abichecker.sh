@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# abichecker ver 0.2
+# abichecker ver 0.3
 # by Irek 'Monsoft' Pelech (c) 2023,2024
 # 
 # Require curl, jq, logger
@@ -27,6 +27,7 @@ ABUSE_SCORE=70
 # App configuration directory
 CONF_DIR="/opt"
 HOSTNAME_WHITELIST_DOMAINS="${CONF_DIR}/abichecker/hostname_domain_whitelist.txt"
+ABI_CACHE="/tmp/abichecker/cache"
 
 # Functions
 check_commands () {
@@ -55,6 +56,9 @@ check_commands curl
 check_commands jq
 check_commands logger
 
+# Create directory for cache if not exist
+mkdir -p ${ABI_CACHE}
+
 # Load variables passed by Postfix
 while read attr; do
 	[ -z "$attr" ] && break
@@ -63,7 +67,7 @@ done
 
 if [ -z "$client_address" ]; then
 	echo "No variables passed by Postfix" | logger -p mail.info -t ${SCRIPT_NAME}
-	exit 1
+	email_allow
 fi
 
 # Check if client whitelisted by domain
@@ -80,15 +84,25 @@ if [ ! -z "${client_name}" ]; then
 	fi
 fi
 
-REPORT_JSON=$(curl -s -G https://${API_URL} --data-urlencode "ipAddress=$client_address" -H "Key: ${TOKEN}" -H "Accept: application/json")
+# Check if abuse confidence score is already cached
+ABUSE_CONFIDENCE_SCORE_CACHED=$(find ${ABI_CACHE} -type f -name ${client_address} -exec cat {} \;)
+if [ ! -z ${ABUSE_CONFIDENCE_SCORE_CACHED} ]; then
+	ABUSE_CONFIDENCE_SCORE=${ABUSE_CONFIDENCE_SCORE_CACHED}
+	echo "Abuse confidence score was read from the cache." | logger -p mail.info -t ${SCRIPT_NAME}
+else
+	REPORT_JSON=$(curl -s -G https://${API_URL} --data-urlencode "ipAddress=$client_address" -H "Key: ${TOKEN}" -H "Accept: application/json")
 
-if [[ ! "${REPORT_JSON}" =~ "ipAddress" ]]; then
-	echo "Unable to fetch data from abuseipdb.com API. Please check connection." | logger -p mail.info -t ${SCRIPT_NAME}
-	email_allow
+	if [[ ! "${REPORT_JSON}" =~ "ipAddress" ]]; then
+		echo "Unable to fetch data from abuseipdb.com API. Please check connection." | logger -p mail.info -t ${SCRIPT_NAME}
+		email_allow
+	fi
+
+	# Parsing JSON into variables
+	ABUSE_CONFIDENCE_SCORE=$(echo "${REPORT_JSON}"|jq -r .data.abuseConfidenceScore)
+
+	# Write abuse confidence score to cache
+	echo ${ABUSE_CONFIDENCE_SCORE} > ${ABI_CACHE}/${client_address}
 fi
-
-# Parsing JSON into variables
-ABUSE_CONFIDENCE_SCORE=$(echo "${REPORT_JSON}"|jq -r .data.abuseConfidenceScore)
 
 if [ "${ABUSE_CONFIDENCE_SCORE}" -gt "${ABUSE_SCORE}" ]; then
 	# We are denying access

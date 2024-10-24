@@ -51,13 +51,21 @@ Feb  9 11:12:47 mail1 abichecker[6761]: Email from host unknown[x.x.x.x] denied.
 
 NOQUEUE: reject: RCPT from unknown[x.x.x.x]: 521 5.7.1 <unknown[x.x.x.x]>: Client host rejected: Bad host reputation.; from=<spameri@tiscali.it> to=<spameri@tiscali.it> proto=ESMTP helo=<xxxxxxxx>
 ```
-This mean that check found IP which already exist in AbuseIPDB database and its reputation is equal or higher than 70% (this can be changed in script by tweaking variable `ABUSE_SCORE`) then reject connetion from that IP. 
+This mean that check found IP which already exist in AbuseIPDB database and its reputation is equal or higher than 70% (this can be changed in script by tweaking variable `ABUSE_SCORE`) then reject connection from that IP. 
 
-Sometimes IPs of legitimaed services like MS Outlook are reported to AbuseIPDB by automatic reports. To allow reciving emails from these domains, you can whitelist them by adding them to file `hostname domain whitelist.txt` located in `/opt/abichecker/`. One domain/subdomain per line:
+Sometimes IPs of legitimate services like MS Outlook are reported to AbuseIPDB by automatic reports. To allow receiving emails from these domains, you can whitelist them by adding them to file `hostname domain whitelist.txt` located in `/opt/abichecker/`. One domain/subdomain per line:
 ```
 phx.paypal.com
 outbound.protection.outlook.com
 ```
+
+To reduce the number of queries to the AbuseIPDB API, caching has been introduced. I haven't think about this initially, but I got request from [Matsmcp](https://github.com/matsmcp) (Thanks !!!) to add this option to the script and I think that it was good idea.
+
+To clear cached IPs, cron job have to be created for abichecker user:
+```
+0 0 * * * find /tmp/abichecker/cache/ -type f -mtime +0 -delete
+```
+This runs once a day at midnight and remove all files older than 24 hours from cache location `/tmp/abichecker/cache/`.  You can adjust it to suits your needs.
 
 ## Debuging Postfix ##
 

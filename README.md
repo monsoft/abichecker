@@ -15,6 +15,10 @@ git clone https://github.com/monsoft/abichecker.git
 cd /opt/abichecker
 chmod 755 abichecker.sh
 ```
+If you have older system or don't want to install/use `jq` you can use `abichecker_no_jq.sh` script. Rename it to `abichecker.sh` and follow rest of installation & configuration steps.
+
+Big Thanks going to Ksuuk (https://github.com/ksuuk) for non-jq updates.
+
 * Instal curl and jq application on your system
 
 Debian/Ubuntu:

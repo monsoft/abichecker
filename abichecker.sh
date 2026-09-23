@@ -60,9 +60,19 @@ check_commands logger
 mkdir -p ${ABI_CACHE}
 
 # Load variables passed by Postfix
-while read attr; do
-	[ -z "$attr" ] && break
-	eval $attr
+while read -r attr; do
+    # Break on empty lines
+    [ -z "$attr" ] && break
+
+    # Ensure the line fits a strict key=value format (letters/numbers/underscores only for the key)
+    if [[ "$attr" =~ ^([a-zA-Z_][a-zA-Z0-9_]*)=(.*)$ ]]; then
+        key="${BASH_REMATCH[1]}"
+        value="${BASH_REMATCH[2]}"
+        
+        # Safely assign the variable using declare
+        # This treats the value strictly as data, ensuring metacharacters ($() | & ;) cannot execute code
+        declare "$key"="$value"
+    fi
 done
 
 if [ -z "$client_address" ]; then
